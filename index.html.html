@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSC Science Model Test - ABDULLAH ZEROUN</title>
+    <style>
+        :root { --primary: #1a73e8; --success: #28a745; --danger: #d93025; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; line-height: 1.6; }
+        #login-screen { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin: 80px auto; max-width: 400px; }
+        #exam-container { display: none; width: 100%; max-width: 850px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.05); margin: auto; }
+        .sticky-nav { position: sticky; top: 0; background: white; padding: 15px; border-bottom: 3px solid var(--primary); z-index: 1000; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0; }
+        #timer { font-size: 24px; font-weight: bold; color: var(--danger); background: #fff1f0; padding: 5px 20px; border-radius: 30px; border: 2px solid var(--danger); }
+        .subject-badge { background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; }
+        .q-block { margin-bottom: 30px; padding: 20px; border: 1px solid #eee; border-radius: 12px; transition: 0.3s; }
+        .q-block:hover { border-color: var(--primary); background: #fcfdfe; }
+        .q-text { font-weight: bold; font-size: 1.15em; margin-bottom: 15px; display: block; color: #202124; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .option { padding: 12px; border: 2px solid #eef0f2; border-radius: 8px; cursor: pointer; display: flex; align-items: center; transition: 0.2s; }
+        .option:hover { background: #f1f7ff; border-color: var(--primary); }
+        input[type="radio"] { margin-right: 12px; transform: scale(1.3); cursor: pointer; }
+        #submit-btn { width: 100%; padding: 20px; background: var(--success); color: white; border: none; border-radius: 12px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 30px; }
+        #result-section { display: none; padding: 40px 20px; text-align: center; }
+        #score-display { font-size: 60px; color: var(--primary); font-weight: 800; margin: 20px 0; }
+        .review-card { text-align: left; background: white; border: 1px solid #ddd; padding: 20px; margin-top: 15px; border-radius: 10px; }
+        .wrong-card { border-left: 10px solid var(--danger); }
+        .correct-card { border-left: 10px solid var(--success); }
+        .explanation { margin-top: 12px; padding: 12px; background: #f1f8e9; border-radius: 6px; font-size: 0.95em; color: #2e7d32; border: 1px dashed #2e7d32; }
+        input[type="password"] { width: 100%; padding: 12px; margin: 20px 0; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 18px; }
+        .btn-start { background: var(--primary); color: white; border: none; padding: 12px 40px; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2 style="color: var(--primary);">🔬 Science Exam Portal</h2>
+        <p>Password provide korun (Data safe thakbe)</p>
+        <input type="password" id="passInput" placeholder="Password">
+        <button class="btn-start" onclick="startExam()">Start Exam</button>
+        <p id="err" style="color: var(--danger); display: none; margin-top: 10px; font-weight: bold;">Wrong Password!</p>
+    </div>
+
+    <div id="exam-container">
+        <div class="sticky-nav">
+            <div>
+                <span class="subject-badge">HSC GST SPECIAL</span>
+                <h3 style="margin:5px 0 0 0;">Science Model Test</h3>
+            </div>
+            <div id="timer">30:00</div>
+        </div>
+
+        <form id="quizForm">
+            <div id="questions-wrapper"></div>
+            <button type="button" id="submit-btn" onclick="processResult()">Submit Final Answer</button>
+        </form>
+
+        <div id="result-section">
+            <h1 style="color: #333;">Exam Summary</h1>
+            <div id="score-display">0/40</div>
+            <div id="review-list"></div>
+            <button onclick="location.reload()" style="margin-top:30px; padding:15px 40px; cursor:pointer; background:#555; color:white; border:none; border-radius:8px;">Retake Test</button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; font-weight: bold; color: #aaa; letter-spacing: 2px;">ABDULLAH ZEROUN</div>
+    </div>
+
+    <script>
+        const mcqData = [
+            // Physics
+            { q: "১ অশ্বক্ষমতা (1 HP) সমান কত ওয়াট?", a: "746 W", b: "550 W", c: "1000 W", d: "764 W", ans: "a", exp: "1 HP = 746 Watts, এটি ক্ষমতার একটি একক।" },
+            { q: "পৃথিবীর কেন্দ্রে অভিকর্ষজ ত্বরণ (g) এর মান কত?", a: "9.8", b: "10", c: "0", d: "অসীম", ans: "c", exp: "পৃথিবীর কেন্দ্রে লব্ধি অভিকর্ষজ বল শূন্য হওয়ায় g-এর মান ০ হয়।" },
+            { q: "রূদ্ধতাপীয় প্রক্রিয়ায় কোনটি স্থির থাকে?", a: "চাপ", b: "আয়তন", c: "তাপমাত্রা", d: "এনট্রপি", ans: "d", exp: "রূদ্ধতাপীয় প্রক্রিয়ায় তাপের আদান-প্রদান শূন্য হয় (dQ=0), ফলে এনট্রপি স্থির থাকে।" },
+            { q: "সান্দ্রতার একক কী?", a: "Poise", b: "Joule", c: "Watt", d: "Pascal", ans: "a", exp: "সান্দ্রতা গুণাঙ্কের CGS একক হলো পয়েজ (Poise)।" },
+            { q: "ভেক্টর গুণনের ক্ষেত্রে i x i = ?", a: "1", b: "0", c: "k", d: "-1", ans: "b", exp: "একই ভেক্টরের ক্রস গুণফল সবসময় শূন্য হয়।" },
+            { q: "বব এর ভর দ্বিগুণ করলে সরল দোলকের পর্যায়কাল-", a: "দ্বিগুণ হবে", b: "অর্ধেক হবে", c: "অপরিবর্তিত থাকবে", d: "চারগুণ হবে", ans: "c", exp: "সরল দোলকের পর্যায়কাল বব-এর ভরের ওপর নির্ভর করে না।" },
+            { q: "শব্দের বেগ সবচেয়ে বেশি কোন মাধ্যমে?", a: "বায়ু", b: "পানি", c: "লোহা", d: "শূন্যস্থান", ans: "c", exp: "কঠিন মাধ্যমে (লোহা) শব্দের বেগ সবচেয়ে বেশি।" },
+            { q: "পাস্কালের সূত্র নিচের কোনটির ক্ষেত্রে প্রযোজ্য?", a: "শুধু কঠিন", b: "শুধু গ্যাস", c: "তরল ও গ্যাস", d: "সবগুলো", ans: "c", exp: "পাস্কালের সূত্র প্রবাহী (তরল ও গ্যাস) পদার্থের ওপর কাজ করে।" },
+            { q: "মহাজাগতিক রশ্মি কে আবিষ্কার করেন?", a: "হেস", b: "মিলিকান", c: "কুরি", d: "আইনস্টাইন", ans: "a", exp: "ভিক্টর হেস ১৯১২ সালে মহাজাগতিক রশ্মি আবিষ্কার করেন।" },
+            { q: "নিচের কোনটি মৌলিক একক?", a: "ভোল্ট", b: "ওয়াট", c: "ক্যান্ডেলা", d: "নিউটন", ans: "c", exp: "ক্যান্ডেলা (Candela) হলো দীপন তীব্রতার মৌলিক একক।" },
+            
+            // Chemistry
+            { q: "পর্যায় সারণির ২ নং গ্রুপের মৌলদের কী বলে?", a: "ক্ষার ধাতু", b: "মৃৎক্ষার ধাতু", c: "হ্যালোজেন", d: "মুদ্রা ধাতু", ans: "b", exp: "গ্রুপ-২ এর মৌলগুলো মাটিতে পাওয়া যায় এবং ক্ষারীয়, তাই এরা মৃৎক্ষার ধাতু।" },
+            { q: "পানির অণুর আকৃতি কেমন?", a: "রৈখিক", b: "কৌণিক (V-shape)", c: "চতুস্তলকীয়", d: "পিরামিডীয়", ans: "b", exp: "মুক্তজোড় ইলেকট্রনের কারণে পানির অণুর আকৃতি বাঁকানো বা কৌণিক হয়।" },
+            { q: "নিচের কোনটি লিউইস এসিড?", a: "BF3", b: "NH3", c: "H2O", d: "CH4", ans: "a", exp: "বোরন ট্রাইফ্লোরাইড (BF3) ইলেকট্রন জোড় গ্রহণ করতে পারে।" },
+            { q: "ভিনেগার হলো-", a: "অক্সালিক এসিড", b: "অ্যাসিটিক এসিড", c: "ফর্মিক এসিড", d: "নাইট্রিক এসিড", ans: "b", exp: "৬-১০% অ্যাসিটিক এসিডের জলীয় দ্রবণকে ভিনেগার বলে।" },
+            { q: "রক্তের pH কত?", a: "7.0", b: "7.4", c: "6.5", d: "8.2", ans: "b", exp: "মানুষের রক্তের pH সামান্য ক্ষারীয় এবং এর মান ৭.৪।" },
+            { q: "নিচের কোনটি নিষ্ক্রিয় গ্যাস নয়?", a: "হিলিয়াম", b: "নিওন", c: "নাইট্রোজেন", d: "আর্গন", ans: "c", exp: "নাইট্রোজেন একটি সক্রিয় দ্বি-পরমাণুক গ্যাস।" },
+            { q: "অ্যাভোগাড্রো সংখ্যার মান কত?", a: "6.023x10^23", b: "6.023x10^22", c: "1.6x10^-19", d: "9.1x10^-31", ans: "a", exp: "১ মোলে অণুর সংখ্যা হলো ৬.০২৩ x ১০^২৩।" },
+            { q: "কোনটি প্রাইমারি স্ট্যান্ডার্ড পদার্থ?", a: "NaOH", b: "Na2CO3", c: "HCl", d: "KMnO4", ans: "b", exp: "সোডিয়াম কার্বনেট বিশুদ্ধ অবস্থায় পাওয়া যায় এবং ঘনমাত্রা অপরিবর্তিত থাকে।" },
+            { q: "অ্যানোড এ কোন বিক্রিয়া ঘটে?", a: "জারণ", b: "বিজারণ", c: "প্রতিস্থাপন", d: "যোজন", ans: "a", exp: "তড়িৎ কোষে অ্যানোডে সবসময় ইলেকট্রন বর্জন বা জারণ ঘটে।" },
+            { q: "প্রাকৃতিক গ্যাসের প্রধান উপাদান কী?", a: "ইথেন", b: "প্রোপেন", c: "মিথেন", d: "বিউটেন", ans: "c", exp: "প্রাকৃতিক গ্যাসে ৮০-৯০% মিথেন (CH4) থাকে।" },
+
+            // Biology
+            { q: "কোষের পাওয়ার হাউজ কোনটি?", a: "নিউক্লিয়াস", b: "মাইটোকন্ড্রিয়া", c: "প্লাস্টিড", d: "রাইবোজোম", ans: "b", exp: "মাইটোকন্ড্রিয়া কোষের শক্তি (ATP) উৎপন্ন করে।" },
+            { q: "DNA-তে কোন ক্ষারকটি থাকে না?", a: "অ্যাডিনিন", b: "গুয়ানিন", c: "ইউরাসিল", d: "থাইমিন", ans: "c", exp: "ইউরাসিল শুধুমাত্র RNA-তে থাকে, DNA-তে নয়।" },
+            { q: "ভাইরাসের প্রোটিন আবরণকে কী বলে?", a: "ক্যাপসিড", b: "নিউক্লিওলাস", c: "কোষপ্রাচীর", d: "এনভেলপ", ans: "a", exp: "ভাইরাসের জেনেটিক ম্যাটেরিয়াল যে প্রোটিন দিয়ে ঢাকা থাকে তাকে ক্যাপসিড বলে।" },
+            { q: "রুই মাছের হৃদপিণ্ড কেমন?", a: "এক প্রকোষ্ঠী", b: "দ্বি-প্রকোষ্ঠী", c: "ত্রি-প্রকোষ্ঠী", d: "চার-প্রকোষ্ঠী", ans: "b", exp: "মাছের হৃদপিণ্ডে একটি অলিন্দ ও একটি নিলয় থাকে।" },
+            { q: "প্লাজমিড কোথায় পাওয়া যায়?", a: "ভাইরাস", b: "ব্যাকটেরিয়া", c: "ছত্রাক", d: "শৈবাল", ans: "b", exp: "ব্যাকটেরিয়ার মূল DNA-র বাইরে বৃত্তাকার DNA-ই হলো প্লাজমিড।" },
+            { q: "মানুষের দাঁত কয় প্রকার?", a: "২ প্রকার", b: "৩ প্রকার", c: "৪ প্রকার", d: "৫ প্রকার", ans: "c", exp: "কর্তন, ছেদন, অগ্রপেষণ ও পেষণ - এই ৪ ধরণের দাঁত থাকে।" },
+            { q: "উদ্ভিদ টিস্যু কালচারের জনক কে?", a: "মেন্ডেল", b: "হ্যাবারল্যান্ডট", c: "মিলার", d: "ডারউইন", ans: "b", exp: "গটলিয়েব হ্যাবারল্যান্ডট-কে টিস্যু কালচারের জনক বলা হয়।" },
+            { q: "সিস্টোলিক রক্তচাপ স্বাভাবিক অবস্থায় কত?", a: "৮০", b: "১২০", c: "১০০", d: "১৪০", ans: "b", exp: "স্বাভাবিক রক্তচাপ ১২০/৮০ mmHg।" },
+            { q: "কোন ভিটামিন রক্ত জমাট বাঁধতে সাহায্য করে?", a: "Vit-A", b: "Vit-D", c: "Vit-K", d: "Vit-C", ans: "c", exp: "ভিটামিন K প্রোথ্রম্বিন তৈরি করে রক্ত জমাট বাঁধায় সাহায্য করে।" },
+            { q: "নিচের কোনটি ভাইরাসজনিত রোগ?", a: "কলেরা", b: "টাইফয়েড", c: "এইডস (AIDS)", d: "যক্ষ্মা", ans: "c", exp: "AIDS রোগটি HIV ভাইরাসের কারণে হয়।" },
+
+            // Math
+            { q: "sin²θ + cos²θ = কত?", a: "0", b: "1", c: "-1", d: "2", ans: "b", exp: "এটি ত্রিকোণমিতির একটি মৌলিক অভেদ।" },
+            { q: "d/dx (tan x) = ?", a: "sec x", b: "sec²x", c: "-sec²x", d: "cot x", ans: "b", exp: "ট্যান এক্স এর অন্তরজ হলো সেক স্কয়ার এক্স।" },
+            { q: "i^4 এর মান কত?", a: "i", b: "-1", c: "1", d: "0", ans: "c", exp: "i^2 = -1, তাই i^4 = (-1)^2 = 1।" },
+            { q: "x-অক্ষের সমীকরণ কোনটি?", a: "x=0", b: "y=0", c: "x=y", d: "x+y=0", ans: "b", exp: "x-অক্ষের ওপর সকল বিন্দুর কোটি (y) শূন্য হয়।" },
+            { q: "ln(e) এর মান কত?", a: "0", b: "1", c: "e", d: "infinity", ans: "b", exp: "ভিত্তি ও সংখ্যা একই হলে লগারিদমের মান ১ হয়।" },
+            { q: "বর্গের কর্ণের দৈর্ঘ্য (বাহু 'a' হলে)?", a: "a²", b: "2a", c: "√2 a", d: "√3 a", ans: "c", exp: "পিথাগোরাসের সূত্রানুযায়ী অতিভুজ বা কর্ণ = √2 * বাহু।" },
+            { q: "একটি ম্যাট্রিক্সের ট্রেস হলো-", a: "নির্ণায়ক", b: "মুখ্য কর্ণের যোগফল", c: "বিপরীত ম্যাট্রিক্স", d: "র‍্যাঙ্ক", ans: "b", exp: "বর্গ ম্যাট্রিক্সের প্রধান কর্ণের উপাদানগুলোর সমষ্টিই ট্রেস।" },
+            { q: "nCr + nCr-1 = ?", a: "n+1Cr", b: "nCr+1", c: "n+1Cr-1", d: "nCr", ans: "a", exp: "এটি সমাবেশের একটি গুরুত্বপূর্ণ বৈশিষ্ট্য বা উপপাদ্য।" },
+            { q: "tan 45° এর মান কত?", a: "0", b: "1/2", c: "1", d: "√3", ans: "c", exp: "Trigonometric table অনুযায়ী tan 45 = 1।" },
+            { q: "∫ 1/x dx = ?", a: "ln|x| + c", b: "x² + c", c: "1 + c", d: "e^x + c", ans: "a", exp: "1/x এর ইন্টিগ্রেশন হলো ন্যাচারাল লগ x।" }
+        ];
+
+        function loadQuestions() {
+            const wrapper = document.getElementById('questions-wrapper');
+            mcqData.forEach((item, index) => {
+                const html = `
+                    <div class="q-block" id="q-block-${index}">
+                        <span class="q-text">${index + 1}. ${item.q}</span>
+                        <div class="options">
+                            <label class="option"><input type="radio" name="q${index}" value="a"> A. ${item.a}</label>
+                            <label class="option"><input type="radio" name="q${index}" value="b"> B. ${item.b}</label>
+                            <label class="option"><input type="radio" name="q${index}" value="c"> C. ${item.c}</label>
+                            <label class="option"><input type="radio" name="q${index}" value="d"> D. ${item.d}</label>
+                        </div>
+                    </div>
+                `;
+                wrapper.innerHTML += html;
+            });
+        }
+
+        let timeLeft = 1800; // 30 minutes
+        let timer;
+
+        function startExam() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "abdullahzeroun") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('exam-container').style.display = 'block';
+                loadQuestions();
+                startTimer();
+            } else {
+                document.getElementById('err').style.display = 'block';
+            }
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    processResult();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function processResult() {
+            clearInterval(timer);
+            let score = 0;
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = "<h3>Review & Explanations:</h3>";
+
+            mcqData.forEach((item, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const userVal = selected ? selected.value : null;
+                const isCorrect = userVal === item.ans;
+                if (isCorrect) score++;
+
+                reviewList.innerHTML += `
+                    <div class="review-card ${isCorrect ? 'correct-card' : 'wrong-card'}">
+                        <strong>Q${index+1}: ${item.q}</strong><br>
+                        <span>Your Answer: <b style="color:${isCorrect ? 'green' : 'red'}">${userVal ? userVal.toUpperCase() : 'Not Attempted'}</b></span> | 
+                        <span>Correct: <b style="color:green">${item.ans.toUpperCase()}</b></span>
+                        <div class="explanation"><b>ব্যাখ্যা:</b> ${item.exp}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('quizForm').style.display = 'none';
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('score-display').innerText = `${score} / 40`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
